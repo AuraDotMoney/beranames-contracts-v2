@@ -426,6 +426,17 @@ contract FlowTest is BaseTest {
         assertEq(text, "_cien_", "text record set and resolved");
     }
 
+    function test_registry_with_SetAddr_and_SetText_data() public prankWithBalance(alice, 1000 ether) {
+        RegistrarController.RegisterRequest memory req = registerRequestWithNoReverseRecord(alice);
+        bytes32 node = _calculateNode(keccak256(bytes("cien")), BERA_NODE);
+        req.data = new bytes[](2);
+        req.data[0] = abi.encodeWithSignature("setAddr(bytes32,address)", node, address(alice));
+        req.data[1] = abi.encodeWithSignature("setText(bytes32,string,string)", node, "community", "berachain");
+        registrarController.register{value: 500 ether}(req);
+        assertEq(resolver.addr(node), address(alice), "addr is alice");
+        assertEq(resolver.text(node, "community"), "berachain", "text record set");
+    }
+
     // ERC721 TESTS ------------------------------------------------------------------------------------------------------
 
     function test_ERC721_transferFrom_updates_registry() public prank(alice) {
